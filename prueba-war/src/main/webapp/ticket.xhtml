@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:adm="http://github.com/adminfaces"
+	template="#{layoutMB.template}">
+
+	<ui:define name="metadata">
+		<ui:param name="title" value="Tickets" />
+		<!-- Automatic create breadCrumb and page title when param 'title' is provided. -->
+
+		<style type="text/css">
+.ui-datatable .ui-datatable-header {
+	text-align: right !important;
+}
+
+th.ui-filter-column {
+	padding: 5px 2px !important;
+}
+
+#footer:hover {
+	opacity: .7;
+}
+
+#footer {
+	float: right;
+	font-size: 12px;
+	color: #3c8dbc;
+	font-weight: 500;
+}
+
+.ui-datatable-footer {
+	border: none;
+}
+
+.ui-panelgrid {
+	border-spacing: 2px;
+}
+
+.companyHeaderGrid.ui-panelgrid>*>tr, .companyHeaderGrid.ui-panelgrid .ui-panelgrid-cell
+	{
+	border: none;
+}
+</style>
+	</ui:define>
+
+
+	<ui:define name="body">
+		<h:form id="form">
+			<p:panel styleClass="card box-info" id="PnlPersona">
+
+				<div class="ui-g-12">
+
+					<p:commandButton value="Nuevo" styleClass="btn-info"
+						action="#{ticketMB.limpiar()}" style="width:10%" immediate="true"
+						update="@(.ui-dialog)" oncomplete="PF('AddTicketDialog').show()" />
+
+
+				</div>
+
+			</p:panel>
+
+
+
+			<p:panel styleClass="card box-info" id="PnlDetallePers">
+				<div>
+
+					<p:panelGrid columns="2" layout="grid" styleClass="customPanelGrid"
+						columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-4">
+
+					</p:panelGrid>
+					<p:dataTable var="detTickets" value="#{ticketMB.listTickets}"
+						id="tablaDetallesTickets" editable="true" editMode="cell">
+						<p:column headerText="Descripción">
+							<h:outputText value="##{detTickets.numTicket} - "
+								style="font-weight:bold" />
+							<h:outputText value="#{detTickets.descripcion}" />
+
+						</p:column>
+
+						<p:column headerText="Estado">
+							<h:outputText value="#{detTickets.estadoticket.nombre}" />
+						</p:column>
+						<p:column headerText="Prioridad">
+							<h:outputText value="#{detTickets.prioridad}" />
+						</p:column>
+						<p:column headerText="Especialista asignado">
+							<h:outputText
+								value="#{detTickets.especialista.nombre} #{detTickets.especialista.apellido}" />
+						</p:column>
+						<p:column headerText="Fecha de vencimiento">
+							<h:outputText value="#{detTickets.fechaVencimiento}">
+								<f:convertDateTime pattern="yyyy-MM-dd" />
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Observación">
+							<h:outputText value="#{detTickets.observacion}">
+							</h:outputText>
+						</p:column>
+
+						<p:column headerText="">
+							<div class="ui-g-6" style="padding-block: 0%">
+								<p:commandButton action="#{ticketMB.editarTicket(detTickets)}"
+									update="form dlgFormTicket" styleClass="btn-info"
+									icon="fa fa-pencil" oncomplete="PF('AddTicketDialog').show()" />
+							</div>
+
+							<div class="ui-g-6" style="padding-block: 0%">
+								<p:commandButton action="#{ticketMB.eliminarTicket(detTickets)}"
+									update="form"
+									styleClass="btn-danger" icon="fa fa-trash">
+									<p:confirm header="Eliminar Registro"
+										message="Está seguro que desea eliminar el elemento seleccionado?"
+										icon="pi pi-info-circle" />
+								</p:commandButton>
+
+								<p:confirmDialog global="true" showEffect="fade"
+									hideEffect="fade" responsive="true" width="350">
+									<p:commandButton value="No" type="button"
+										styleClass="ui-confirmdialog-no ui-button-flat" />
+									<p:commandButton value="Si" type="button" 
+									update="form dlgFormTicket"
+										styleClass="ui-confirmdialog-yes" />
+								</p:confirmDialog>
+							</div>
+
+
+
+						</p:column>
+					</p:dataTable>
+				</div>
+			</p:panel>
+
+
+
+
+		</h:form>
+
+		<p:dialog header="Agregar Ticket" widgetVar="AddTicketDialog"
+			dynamic="true" modal="true" appendTo="@(body)" width="700"
+			responsive="true" draggable="false" styleClass="box-success">
+			<h:form id="dlgFormTicket">
+				<p:messages id="messages" showDetail="true" closable="true">
+					<p:autoUpdate />
+				</p:messages>
+
+				<div class="ui-g ui-fluid">
+					<div class="ui-g-12">
+
+						<p:panelGrid columns="3" layout="grid"
+							styleClass="customPanelGrid"
+							columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-4">
+							<p:outputLabel value="Número:" />
+							<p:inputText id="numTicket" value="#{ticketMB.numticket}" style="width: 100%;" 
+								placeholder="Número Ticket" />
+								<p:outputLabel value="" />
+							<p:outputLabel value="Descripción:" />
+							<p:inputText value="#{ticketMB.descripcion}" style="width: 100%;"
+								placeholder="Descipción" />
+							<p:outputLabel value="" />
+							<p:outputLabel value="Estado:" />
+							<p:selectOneMenu value="#{ticketMB.idEstadticket}">
+								<f:selectItem itemLabel="Seleccione..." noSelectionOption="true" />
+								<f:selectItems value="#{ticketMB.listEstados}" var="est"
+									itemLabel="#{est.nombre}" itemValue="#{est.idEstado}" />
+							</p:selectOneMenu>
+							<p:outputLabel value="" />
+							<p:outputLabel value="Prioridad:" />
+							<p:selectOneMenu id="option" value="#{ticketMB.prioridad}">
+								<f:selectItem itemLabel="Seleccione" noSelectionOption="true" />
+								<f:selectItem itemLabel="Baja" itemValue="Baja" />
+								<f:selectItem itemLabel="Media" itemValue="Media" />
+								<f:selectItem itemLabel="Alta" itemValue="Alta" />
+
+							</p:selectOneMenu>
+							<p:outputLabel value="" />
+							<p:outputLabel value="Especialista asignado (Identificación):" />
+							<p:inputText value="#{ticketMB.identifEspecialista}"
+								style="width: 100%;" placeholder="9999999999" 
+								maxlength="10"
+								onkeypress="if(event.which &lt; 48 || event.which &gt; 57) return false;"/>
+							<p:commandButton value="Buscar" id="BuscarP-btn2"
+								style="width:50%" action="#{ticketMB.buscarEspecialista()}"
+								update="dlgFormTicket" icon="fa fa-search" styleClass="btn-info" />
+							<p:outputLabel value="" />
+							<p:inputText
+								value="#{ticketMB.especialista.nombre} #{ticketMB.especialista.apellido} "
+								style="width: 100%;" placeholder="Especialista" readonly="true" />
+							<p:outputLabel value="" />
+							<p:outputLabel value="Fecha de vencimiento:" />
+							<p:calendar value="#{ticketMB.fechavencimiento}"
+								placeholder="Fecha de vencimiento" inputStyle="width: 100%;"
+								pattern="yyyy-MM-dd" />
+							<p:outputLabel value="" />
+							<p:outputLabel value="Observación:" />
+							<p:inputTextarea value="#{ticketMB.observacion}" />
+							<p:outputLabel value="" />
+							<p:outputLabel value="" />
+							<p:commandButton value="Guardar" styleClass="btn-success"
+								action="#{ticketMB.guardarTicket()}" icon="fa fa-floppy-os"
+								oncomplete="PF('AddTicketDialog').hide()"
+								update="form dlgFormTicket form:tablaDetallesTickets" />
+						</p:panelGrid>
+						<div class="ui-g-12"></div>
+					</div>
+				</div>
+				<div class="ui-g-12"></div>
+			</h:form>
+		</p:dialog>
+
+
+	</ui:define>
+</ui:composition>
